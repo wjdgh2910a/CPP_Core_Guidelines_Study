@@ -66,6 +66,17 @@ void ATP_ThirdPersonCharacter::BeginPlay()
 {
 	// Call the base class  
 	Super::BeginPlay();
+	IsAttack = false;
+}
+
+void ATP_ThirdPersonCharacter::AttackStart()
+{
+	IsAttack = true;
+}
+
+void ATP_ThirdPersonCharacter::AttackEnd()
+{
+	IsAttack = false;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -86,8 +97,8 @@ void ATP_ThirdPersonCharacter::SetupPlayerInputComponent(UInputComponent* Player
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
 		
 		// Jumping
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ATP_ThirdPersonCharacter::Jump);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ATP_ThirdPersonCharacter::StopJumping);
 
 		// Moving
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ATP_ThirdPersonCharacter::Move);
@@ -104,8 +115,36 @@ void ATP_ThirdPersonCharacter::SetupPlayerInputComponent(UInputComponent* Player
 	}
 }
 
+void ATP_ThirdPersonCharacter::Jump()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance != nullptr)
+	{
+		AnimInstance->StopAllMontages(0.1f);
+	}
+	Super::Jump();
+	IsAttack = false;
+}
+
+void ATP_ThirdPersonCharacter::StopJumping()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance != nullptr)
+	{
+		AnimInstance->StopAllMontages(0.1f);
+	}
+	Super::StopJumping();
+	IsAttack = false;
+}
+
 void ATP_ThirdPersonCharacter::Move(const FInputActionValue& Value)
 {
+	IsAttack = false;
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance != nullptr)
+	{
+		AnimInstance->StopAllMontages(0.1f);
+	}
 	// input is a Vector2D
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
@@ -142,5 +181,12 @@ void ATP_ThirdPersonCharacter::Look(const FInputActionValue& Value)
 
 void ATP_ThirdPersonCharacter::Attack(const FInputActionValue& Value)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, TEXT("Attack!!"));
+	if (IsAttack == true) return;
+	if (AttackMontage == nullptr)
+		return;
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance != nullptr)
+	{
+		AnimInstance->Montage_Play(AttackMontage);
+	}
 }

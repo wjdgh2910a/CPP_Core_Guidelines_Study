@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
+#include "../Attacker.h"
 #include "TP_ThirdPersonCharacter.generated.h"
 
 class USpringArmComponent;
@@ -16,7 +17,7 @@ struct FInputActionValue;
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
 UCLASS(config=Game)
-class ATP_ThirdPersonCharacter : public ACharacter
+class ATP_ThirdPersonCharacter : public ACharacter, public IAttacker
 {
 	GENERATED_BODY()
 
@@ -52,6 +53,11 @@ class ATP_ThirdPersonCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadWrite,Category = HitBox, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UArrowComponent> RightHitBox;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Montage")
+	TObjectPtr<UAnimMontage> AttackMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = HitBox, meta = (AllowPrivateAccess = "true"))
+	bool IsAttack;
 public:
 	ATP_ThirdPersonCharacter();
 	
@@ -72,6 +78,9 @@ protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
+	void Jump()override;
+	void StopJumping()override;
+
 	// To add mapping context
 	virtual void BeginPlay();
 
@@ -80,5 +89,9 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+	// IAttacker을(를) 통해 상속됨
+	void AttackStart() override;
+	void AttackEnd() override;
 };
 
