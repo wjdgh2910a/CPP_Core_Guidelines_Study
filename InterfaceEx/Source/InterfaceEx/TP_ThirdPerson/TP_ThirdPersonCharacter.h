@@ -53,6 +53,11 @@ class ATP_ThirdPersonCharacter : public ACharacter, public IAttacker
 	UPROPERTY(EditAnywhere, BlueprintReadWrite,Category = HitBox, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UArrowComponent> RightHitBox;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite,Category = HitBox, meta = (AllowPrivateAccess = "true"))
+	TArray<FName> AttackMontageSectionNames;
+
+	int SectionIndex;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Montage")
 	TObjectPtr<UAnimMontage> AttackMontage;
 
@@ -93,5 +98,9 @@ public:
 	// IAttacker을(를) 통해 상속됨
 	void AttackStart() override;
 	void AttackEnd() override;
+
+	// IAttacker을(를) 통해 상속됨
+	void ComboStart() override;
+	void ComboEnd() override;
 };
 

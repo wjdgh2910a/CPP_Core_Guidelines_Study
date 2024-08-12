@@ -24,4 +24,6 @@ class INTERFACEEX_API IAttacker
 public:
 	virtual void AttackStart() = 0;
 	virtual void AttackEnd() = 0;
+	virtual void ComboStart() = 0;
+	virtual void ComboEnd() = 0;
 };

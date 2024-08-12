@@ -60,6 +60,8 @@ ATP_ThirdPersonCharacter::ATP_ThirdPersonCharacter()
 	RightHitBox = CreateDefaultSubobject<UArrowComponent>(TEXT("RightHitBox"));
 	RightHitBox->AttachToComponent(GetMesh(), FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("hand_r"));
 	RightHitBox->SetWorldRotation(FRotator(180.0, 0.0, 0.0));
+
+	SectionIndex = 0;
 }
 
 void ATP_ThirdPersonCharacter::BeginPlay()
@@ -67,6 +69,7 @@ void ATP_ThirdPersonCharacter::BeginPlay()
 	// Call the base class  
 	Super::BeginPlay();
 	IsAttack = false;
+	SectionIndex = 0;
 }
 
 void ATP_ThirdPersonCharacter::AttackStart()
@@ -77,6 +80,25 @@ void ATP_ThirdPersonCharacter::AttackStart()
 void ATP_ThirdPersonCharacter::AttackEnd()
 {
 	IsAttack = false;
+	SectionIndex = 0;
+}
+
+void ATP_ThirdPersonCharacter::ComboStart()
+{
+	SectionIndex = (SectionIndex + 1) % AttackMontageSectionNames.Num();
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance != nullptr)
+	{
+		AnimInstance->Montage_Play(AttackMontage);
+		if (AttackMontageSectionNames.Num() != 0)
+			AnimInstance->Montage_JumpToSection(AttackMontageSectionNames[SectionIndex]);
+	}
+}
+
+void ATP_ThirdPersonCharacter::ComboEnd()
+{
+	SectionIndex = 0;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -124,6 +146,7 @@ void ATP_ThirdPersonCharacter::Jump()
 	}
 	Super::Jump();
 	IsAttack = false;
+	SectionIndex = 0;
 }
 
 void ATP_ThirdPersonCharacter::StopJumping()
@@ -135,11 +158,13 @@ void ATP_ThirdPersonCharacter::StopJumping()
 	}
 	Super::StopJumping();
 	IsAttack = false;
+	SectionIndex = 0;
 }
 
 void ATP_ThirdPersonCharacter::Move(const FInputActionValue& Value)
 {
 	IsAttack = false;
+	SectionIndex = 0;
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance != nullptr)
 	{
@@ -188,5 +213,7 @@ void ATP_ThirdPersonCharacter::Attack(const FInputActionValue& Value)
 	if (AnimInstance != nullptr)
 	{
 		AnimInstance->Montage_Play(AttackMontage);
+		if(AttackMontageSectionNames.Num() != 0)
+			AnimInstance->Montage_JumpToSection(AttackMontageSectionNames[SectionIndex]);
 	}
 }
