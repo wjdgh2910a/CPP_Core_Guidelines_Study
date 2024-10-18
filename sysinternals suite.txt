@@ -1,0 +1,12 @@
+sysinternals suite
+
+ProcMon
+ProcExp64
+windows sysinternal vol
+
+시스인터널
+
+
+duckDB
+
+oneTBB
